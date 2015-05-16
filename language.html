@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The Language &mdash; FunL 0.17 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.17',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="FunL 0.17 documentation" href="index.html" />
+    <link rel="next" title="Grammar" href="grammar.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="grammar.html" title="Grammar"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">FunL 0.17 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-language">
+<h1>The Language<a class="headerlink" href="#the-language" title="Permalink to this headline">¶</a></h1>
+<p>The FunL interpreter can be used under different circumstances.  Usually, it will be used to run a program stored in a source file, which can in turn import modules which are also source files.  Or, it may be used from within an application to execute a code snippet.  It is also used by the REPL (Repeat Evaluate Print Loop) utility to execute individual lines of code.</p>
+<div class="section" id="source">
+<h2>Source<a class="headerlink" href="#source" title="Permalink to this headline">¶</a></h2>
+<p>If the interpreter is to run a program or import a module, the input is refered to as &#8216;source&#8217; in the grammar:</p>
+<div class="highlight-python"><div class="highlight"><pre>source ::= Newline | statements
+
+statements ::= statement+
+</pre></div>
+</div>
+<p>A <code class="docutils literal"><span class="pre">source</span></code> is just a list of statements that are execute one after the other.  If a source file is empty, the lexer will still emit a <code class="docutils literal"><span class="pre">Newline</span></code> token.</p>
+</div>
+<div class="section" id="statements">
+<h2>Statements<a class="headerlink" href="#statements" title="Permalink to this headline">¶</a></h2>
+<p>A statement in FunL is either an expression or a declaration:</p>
+<div class="highlight-python"><div class="highlight"><pre>statement ::=
+    |   expression Newline
+        declaration
+</pre></div>
+</div>
+<p>Expressions return a value and declarations don&#8217;t.  The value returned by an expression statement may or may not be discarded depending on whether it occurs at the end of a block or not.</p>
+</div>
+<div class="section" id="objects-values-data-types">
+<h2>Objects, Values, Data Types<a class="headerlink" href="#objects-values-data-types" title="Permalink to this headline">¶</a></h2>
+<p>A FunL program manipulates <em>objects</em>.  An object is something that lives in the computer&#8217;s memory and carries some kind of <em>value</em>.  Two different objects can represent the same value.  So, a value is something that a human can understand.  Values are categorized into <em>data types</em> or just <em>types</em>.</p>
+<p>There are two kinds of objects: mutable and immutable.  Generally, anything that can be created directly using the syntax of the language is immutable.  Built-in functions and type constructors are used to create mutable objects.  And there are also functions that create immutables too.</p>
+<p>Immutable types in FunL are all created using a type of expression called a <em>literal</em>.</p>
+<div class="section" id="strings">
+<h3>Strings<a class="headerlink" href="#strings" title="Permalink to this headline">¶</a></h3>
+<p>A string literal is a list of characters enclosed in either single or double quotes, such as: <code class="docutils literal"><span class="pre">'this</span> <span class="pre">is</span> <span class="pre">a</span> <span class="pre">&quot;string&quot;'</span></code> or <code class="docutils literal"><span class="pre">&quot;that's</span> <span class="pre">cool&quot;</span></code>.  Strings used for representing text.  There is no separate character literal in FunL as in other languages, however FunL can deal with Java character objects.</p>
+</div>
+<div class="section" id="numbers">
+<h3>Numbers<a class="headerlink" href="#numbers" title="Permalink to this headline">¶</a></h3>
+<p>FunL knows about several different types of numbers:</p>
+<ul class="simple">
+<li><strong>integers</strong> can be any number of digits.  Internally FunL uses two different ways of dealing with integers depending on how big they are.  The conversion is handled automatically.</li>
+<li><strong>decimals</strong> are IEEE 754 double precision (binary64) number objects.  FunL 1.0 will support arbitrary precision BCD numbers as well.</li>
+<li><strong>rationals</strong> or fractions are what you get if you divide two integers where the first is not a multiple of the second.  So, strictly speaking there&#8217;s no literal syntax for rationals.  FunL just gives the feeling that there is.  If you type <code class="docutils literal"><span class="pre">2/3</span></code>, you&#8217;ll get a rational object with the value of two thirds. There&#8217;s no limit to the size of the numerator or denominator of a rational number object.</li>
+<li><strong>complex numbers</strong> are supported directly.  Current, complex numbers are a pair of double precision numbers, however FunL 1.0 will support arbitrary precision as well as complex (Gaussian) integers and complex fractions.  As for rationals, there&#8217;s no literal syntax for complex numbers.  The variables <code class="docutils literal"><span class="pre">i</span></code> and <code class="docutils literal"><span class="pre">j</span></code>, which are equal and represent the imaginary unit, are predefined.  So, you can type <code class="docutils literal"><span class="pre">2</span> <span class="pre">+</span> <span class="pre">3i</span></code>, for example to the complex number equal to 2 plus 3 times the imaginary unit.  Note that an asterisk (<code class="docutils literal"><span class="pre">*</span></code>) is not needed between the <code class="docutils literal"><span class="pre">3</span></code> and the <code class="docutils literal"><span class="pre">i</span></code>.  FunL understands that it&#8217;s multiplication.</li>
+</ul>
+</div>
+<div class="section" id="booleans">
+<h3>Booleans<a class="headerlink" href="#booleans" title="Permalink to this headline">¶</a></h3>
+<p>A boolean literal is just <code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code>.  Boolean values are the results of comparisons and logical connectives.</p>
+</div>
+<div class="section" id="closures">
+<h3>Closures<a class="headerlink" href="#closures" title="Permalink to this headline">¶</a></h3>
+<p>A closure is an immutable object (though it may refer internally to variables that are mutable) that encapsulates a calculation and all variable references needed by that calculation.  A closure can be <em>called</em> or <em>invoked</em> using the so-called <em>application</em> syntax to get a value from it (which may be compound).</p>
+</div>
+<div class="section" id="lists">
+<h3>Lists<a class="headerlink" href="#lists" title="Permalink to this headline">¶</a></h3>
+<p>A list literal is a list of expressions separated by commas and enclosed in square brackets.  For example, <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code> creates a list with the numbers 1, 2 and 3 in it.  The empty list is <code class="docutils literal"><span class="pre">[]</span></code>.</p>
+</div>
+</div>
+<div class="section" id="expressions">
+<h2>Expressions<a class="headerlink" href="#expressions" title="Permalink to this headline">¶</a></h2>
+<p>A expression is a way of creating an object by way of applying operations and functions to other objects.  There are a number of categories of expressions.</p>
+<div class="section" id="applications">
+<h3>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h3>
+<p><em>Applications</em> refers to the well-known syntax for calling or invoking a function.  The term is not being used here to refer to software applications.  Generally, the application syntax is:</p>
+<div class="highlight-python"><div class="highlight"><pre>applyExpression ::=
+        applyExpression (&#39;(&#39; (expression (&#39;,&#39; expression)*)? &#39;)&#39;)
+    | applyExpression (&#39;.&#39; | &#39;.&gt;&#39;) ident
+    | primaryExpression
+</pre></div>
+</div>
+<p>For example to print the number <code class="docutils literal"><span class="pre">123</span></code> write:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">println</span><span class="p">(</span> <span class="mi">123</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arithmetic">
+<h3>Arithmetic<a class="headerlink" href="#arithmetic" title="Permalink to this headline">¶</a></h3>
+<p>FunL has the following arithmetic operators: <code class="docutils literal"><span class="pre">+</span></code>, <code class="docutils literal"><span class="pre">-</span></code>, <code class="docutils literal"><span class="pre">*</span></code>, <code class="docutils literal"><span class="pre">/</span></code>, <code class="docutils literal"><span class="pre">\</span></code>, <code class="docutils literal"><span class="pre">%</span></code>, <code class="docutils literal"><span class="pre">mod</span></code>.</p>
+</div>
+<div class="section" id="comparisons">
+<h3>Comparisons<a class="headerlink" href="#comparisons" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">&lt;</span></code>, <code class="docutils literal"><span class="pre">&lt;=</span></code>, <code class="docutils literal"><span class="pre">&gt;</span></code>, <code class="docutils literal"><span class="pre">&gt;=</span></code>, <code class="docutils literal"><span class="pre">==</span></code>, <code class="docutils literal"><span class="pre">!=</span></code></p>
+</div>
+<div class="section" id="predicates">
+<h3>Predicates<a class="headerlink" href="#predicates" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">|</span></code>, <code class="docutils literal"><span class="pre">/|</span></code>, <code class="docutils literal"><span class="pre">in</span></code>, <code class="docutils literal"><span class="pre">not</span> <span class="pre">in</span></code>, <code class="docutils literal"><span class="pre">is</span></code></p>
+</div>
+<div class="section" id="logical">
+<h3>Logical<a class="headerlink" href="#logical" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">and</span></code>, <code class="docutils literal"><span class="pre">or</span></code>, <code class="docutils literal"><span class="pre">xor</span></code>, <code class="docutils literal"><span class="pre">not</span></code></p>
+</div>
+<div class="section" id="bitwise">
+<h3>Bitwise<a class="headerlink" href="#bitwise" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">and</span></code>, <code class="docutils literal"><span class="pre">or</span></code>, <code class="docutils literal"><span class="pre">xor</span></code>, <code class="docutils literal"><span class="pre">not</span></code>, <code class="docutils literal"><span class="pre">&gt;&gt;</span></code>, <code class="docutils literal"><span class="pre">&lt;&lt;</span></code>, <code class="docutils literal"><span class="pre">rotateright</span></code>, <code class="docutils literal"><span class="pre">rotateleft</span></code></p>
+</div>
+<div class="section" id="conditional">
+<h3>Conditional<a class="headerlink" href="#conditional" title="Permalink to this headline">¶</a></h3>
+<p>A conditional expression takes on a value conditionally based on a boolean expression.  The syntax for conditionals is:</p>
+<div class="highlight-python"><div class="highlight"><pre>&#39;if&#39; booleanExpression (&#39;then&#39; expressionOrBlock | blockExpression) elif* elsePart
+</pre></div>
+</div>
+<p>where:</p>
+<div class="highlight-python"><div class="highlight"><pre>expressionOrBlock ::= expression | blockExpression
+
+elif ::= optionalNewline &#39;elif&#39; booleanExpression (&#39;then&#39; expressionOrBlock | blockExpression)
+
+elsePart ::= (optionalNewline &#39;else&#39; expressionOrBlock)?
+</pre></div>
+</div>
+</div>
+<div class="section" id="case">
+<h3>Case<a class="headerlink" href="#case" title="Permalink to this headline">¶</a></h3>
+<p>A case expression has the syntax:</p>
+<div class="highlight-python"><div class="highlight"><pre>&#39;case&#39; expression (&#39;of&#39; functionExpression | caseFunctionExpression)
+</pre></div>
+</div>
+<p>where:</p>
+<div class="highlight-python"><div class="highlight"><pre>lambdaExpression ::=
+    (&#39;(&#39; pattern (&#39;,&#39; pattern)* &#39;)&#39; | pattern) (&#39;|&#39; booleanExpression)? &#39;-&gt;&#39; expression
+
+caseFunctionExpression ::=
+    Indent lambdaExpression (Newline lambdaExpression)* Dedent
+
+functionExpression ::=
+    lambdaExpression | caseFunctionExpression
+</pre></div>
+</div>
+</div>
+<div class="section" id="conditional-loops">
+<h3>Conditional Loops<a class="headerlink" href="#conditional-loops" title="Permalink to this headline">¶</a></h3>
+<p>FunL has four kinds of loop constructs that could be called &#8220;conditional&#8221;;</p>
+<ul class="simple">
+<li>while</li>
+<li>do...while</li>
+<li>do...until</li>
+<li>repeat</li>
+</ul>
+</div>
+<div class="section" id="iterator-loop">
+<h3>Iterator Loop<a class="headerlink" href="#iterator-loop" title="Permalink to this headline">¶</a></h3>
+<p>An iterator loop, also known as a <em>for</em> loop, causes an express or block of expressions to be executed iteratively, one iteration for each element of an iterator object.  &#8220;for&#8221; loops have the syntax:</p>
+<div class="highlight-python"><div class="highlight"><pre>&#39;for&#39; generators (&#39;do&#39; expressionOrBlock | blockExpression) elsePart
+</pre></div>
+</div>
+<p>where:</p>
+<div class="highlight-python"><div class="highlight"><pre>generator ::=
+    pattern &#39;&lt;-&#39; expression (&#39;if&#39; expression)?
+
+generators ::= generator (&#39;,&#39; generator)*
+
+expressionOrBlock ::= expression | blockExpression
+
+elsePart ::= (optionalNewline &#39;else&#39; expressionOrBlock)?
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre>for (key, value) &lt;- {&#39;one&#39;: 1, &#39;two&#39;: 2, &#39;three&#39;: 3}
+    println( key + &#39; -&gt; &#39; + value )
+</pre></div>
+</div>
+<p>produces:</p>
+<div class="highlight-python"><div class="highlight"><pre>one -&gt; 1
+two -&gt; 2
+three -&gt; 3
+</pre></div>
+</div>
+<p>and:</p>
+<div class="highlight-python"><div class="highlight"><pre>for i &lt;- 1..5 by 2
+    println( i )
+</pre></div>
+</div>
+<p>produces:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="mi">1</span>
+<span class="mi">3</span>
+<span class="mi">5</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="simple-loop">
+<h3>Simple Loop<a class="headerlink" href="#simple-loop" title="Permalink to this headline">¶</a></h3>
+<p>The simple loop is for situation where you either want to terminate the loop using a <code class="docutils literal"><span class="pre">break</span></code> or <code class="docutils literal"><span class="pre">return</span></code>, or the application doesn&#8217;t terminate.  For example:</p>
+<div class="highlight-python"><div class="highlight"><pre>n = 1
+
+for println( n++ )
+</pre></div>
+</div>
+<p>prints numbers starting from 1 without end.</p>
+</div>
+<div class="section" id="sections">
+<h3>Sections<a class="headerlink" href="#sections" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="lambda-expressions">
+<h3>Lambda Expressions<a class="headerlink" href="#lambda-expressions" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="declarations">
+<h2>Declarations<a class="headerlink" href="#declarations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="import">
+<h3>Import<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The Language</a><ul>
+<li><a class="reference internal" href="#source">Source</a></li>
+<li><a class="reference internal" href="#statements">Statements</a></li>
+<li><a class="reference internal" href="#objects-values-data-types">Objects, Values, Data Types</a><ul>
+<li><a class="reference internal" href="#strings">Strings</a></li>
+<li><a class="reference internal" href="#numbers">Numbers</a></li>
+<li><a class="reference internal" href="#booleans">Booleans</a></li>
+<li><a class="reference internal" href="#closures">Closures</a></li>
+<li><a class="reference internal" href="#lists">Lists</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#expressions">Expressions</a><ul>
+<li><a class="reference internal" href="#applications">Applications</a></li>
+<li><a class="reference internal" href="#arithmetic">Arithmetic</a></li>
+<li><a class="reference internal" href="#comparisons">Comparisons</a></li>
+<li><a class="reference internal" href="#predicates">Predicates</a></li>
+<li><a class="reference internal" href="#logical">Logical</a></li>
+<li><a class="reference internal" href="#bitwise">Bitwise</a></li>
+<li><a class="reference internal" href="#conditional">Conditional</a></li>
+<li><a class="reference internal" href="#case">Case</a></li>
+<li><a class="reference internal" href="#conditional-loops">Conditional Loops</a></li>
+<li><a class="reference internal" href="#iterator-loop">Iterator Loop</a></li>
+<li><a class="reference internal" href="#simple-loop">Simple Loop</a></li>
+<li><a class="reference internal" href="#sections">Sections</a></li>
+<li><a class="reference internal" href="#lambda-expressions">Lambda Expressions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#declarations">Declarations</a><ul>
+<li><a class="reference internal" href="#import">Import</a></li>
+<li><a class="reference internal" href="#definition">Definition</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="grammar.html"
+                        title="next chapter">Grammar</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/language.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="grammar.html" title="Grammar"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="Introduction"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">FunL 0.17 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Edward A. Maxedon, Sr..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

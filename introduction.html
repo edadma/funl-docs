@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; FunL 0.17 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.17',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="FunL 0.17 documentation" href="index.html" />
+    <link rel="next" title="The Language" href="language.html" />
+    <link rel="prev" title="Welcome to FunL’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="language.html" title="The Language"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to FunL’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">FunL 0.17 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><em>FunL</em> (pronounced &#8220;funnel&#8221;) is a functional dynamically typed scripting language. The name FunL stands for &#8220;fun language&#8221;, but it can also stand for &#8220;functional language&#8221;.  One of the goals in creating FunL was to make a scripting language that would be as enjoyable and convenient to use as Python but with the added support for pattern matching and more of a &#8220;functional&#8221; style of programming.  FunL has the same kind of indentation or &#8220;off-side rule&#8221; syntax as Python.</p>
+<p>As an example, here is a tail-recursive version of the well known factorial function:</p>
+<div class="highlight-python"><div class="highlight"><pre>def factorial( n )
+  | n &gt;= 0 =
+    def
+      fact( acc, 0 ) = acc
+      fact( acc, n ) = fact( acc*n, n - 1 )
+
+    fact( 1, n )
+  | otherwise = error( &quot;factorial: n should be non-negative&quot; )
+</pre></div>
+</div>
+<p>Here is the same calculation expressed more concisely (which is also tail-recursive internally):</p>
+<div class="highlight-python"><div class="highlight"><pre>def factorial( n ) = product( 1..n )
+</pre></div>
+</div>
+<p>Another goal in creating FunL was to have a scripting language that is highly Java and Scala interoperable.  FunL is implemented in Scala and therefore relies upon both the Scala and Java runtime support libraries.</p>
+<div class="section" id="installing">
+<h2>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<p>If you haven&#8217;t yet done so, please download the software from <a class="reference external" href="https://dl.bintray.com/edadma/generic/funl-dev.jar">https://dl.bintray.com/edadma/generic/funl-dev.jar</a>.  If you are on Windows, then it&#8217;s probably best to just download it to your Desktop.  Their is no special installation procedure for the software itself, other than the fact that it runs on a platform known as the JVM (Java Virtual Machine), which you can get for free at <a class="reference external" href="http://java.com">http://java.com</a>.  Just click on <em>Free Java Download</em> and follow their installation instructions.  Once the JVM is installed, you will be able to run the FunL REPL (repeat evaluate print loop) by starting a command line window (however you do that in the operating system you are using), changing to the directory where you downloaded the program, and typing:</p>
+<div class="highlight-python"><div class="highlight"><pre>java -jar funl-0.17.jar
+</pre></div>
+</div>
+<p>After executing the above command to run the REPL, you shoud see:</p>
+<div class="highlight-python"><div class="highlight"><pre>    ______            __
+   / ____/_  __ ___  / /     FunL Programming Language
+  / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr.
+ / /   / /_/ / / / / /__     http://funl-lang.org/
+/_/    \____/_/ /_/____/
+
+Welcome to FunL version 0.17
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+FunL&gt;
+</pre></div>
+</div>
+<p>If so, you can now enter FunL expressions at the prompt.</p>
+<p>Program files are executed by the following command:</p>
+<div class="highlight-python"><div class="highlight"><pre>java -jar &lt;path to funl.jar&gt; &lt;program filename&gt;
+</pre></div>
+</div>
+<p>The program filename can be entered without the <code class="docutils literal"><span class="pre">.funl</span></code> filename extension.  If the filename does not end with <code class="docutils literal"><span class="pre">.funl</span></code>, it is assumed.</p>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>The FunL REPL allows expressions to be evaluated, but in the current version, no function declarations can be made.  Variable assignments are possible, however.  For example, if you enter:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span>
+</pre></div>
+</div>
+<p>at the prompt, you should see:</p>
+<div class="highlight-python"><div class="highlight"><pre>res1: ca.hyperreal.lia.Rational = 7/6
+</pre></div>
+</div>
+<p>The example highlights FunL&#8217;s <em>exact arithmetic</em> capability.  The type <code class="docutils literal"><span class="pre">ca.hyperreal.lia.Rational</span></code> is the rational or fraction type. The REPL creates a new variable for every result.  In this case, the result variable is <code class="docutils literal"><span class="pre">res1</span></code>.  The following code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">res1</span><span class="o">^-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>should produce the expected result of inverting the fraction to yield <span class="math">\(\frac6 7\)</span>.</p>
+<p>FunL also uses JSON syntax for the <em>map</em> type.  The following code (with each line entered separately):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;one&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;two&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+<span class="n">a</span><span class="o">.</span><span class="n">two</span>
+</pre></div>
+</div>
+<p>should produce the expected result of <code class="docutils literal"><span class="pre">2</span></code>.  Also, the <em>dot notation</em> can be used to access object members, as in JavaScript.</p>
+<div class="section" id="running-scripts">
+<h3>Running Scripts<a class="headerlink" href="#running-scripts" title="Permalink to this headline">¶</a></h3>
+<p>We will now look at running small scripts.  Two examples will be given in this sub-section.  The next major section presents a complete language tutorial.  The first example script is the obligatory &#8220;hello world&#8221; program in FunL.  Create a text file called <code class="docutils literal"><span class="pre">hello.funl</span></code> with the following contents:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">println</span><span class="p">(</span> <span class="s">&#39;Hello World&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, open a command window (shell) and change to the directory that contains <code class="docutils literal"><span class="pre">hello.funl</span></code> and type the command:</p>
+<div class="highlight-python"><div class="highlight"><pre>java -jar &lt;path to funl.jar&gt; hello
+</pre></div>
+</div>
+<p>You should see <code class="docutils literal"><span class="pre">Hello</span> <span class="pre">World</span></code> being output.  <code class="docutils literal"><span class="pre">println</span></code> means &#8220;print a line&#8221; and causes the given expression to be output, followed by a new-line character.</p>
+<p>As a more interesting example, here is an (not fairly efficient) implementation of the Quick Sort.  Create a file called <code class="docutils literal"><span class="pre">quicksort.funl</span></code> with the following contents:</p>
+<div class="highlight-python"><div class="highlight"><pre>def
+  qsort( [] )   = []
+  qsort( p:xs ) = qsort( xs.filter((&lt; p)) ) + [p] + qsort( xs.filter((&gt;= p)) )
+
+println( qsort([4, 2, 1, 3, 0, 2]) )
+println( qsort([&quot;Bob&quot;, &quot;Alice&quot;, &quot;Barry&quot;, &quot;Zoe&quot;, &quot;Charlotte&quot;, &quot;Fred&quot;]) )
+</pre></div>
+</div>
+<p>Run the program by typing:</p>
+<div class="highlight-python"><div class="highlight"><pre>java -jar &lt;path to funl.jar&gt; quicksort
+</pre></div>
+</div>
+<p>at the command prompt.  You should see:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="p">[</span><span class="n">Alice</span><span class="p">,</span> <span class="n">Barry</span><span class="p">,</span> <span class="n">Bob</span><span class="p">,</span> <span class="n">Charlotte</span><span class="p">,</span> <span class="n">Fred</span><span class="p">,</span> <span class="n">Zoe</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#installing">Installing</a></li>
+<li><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li><a class="reference internal" href="#running-scripts">Running Scripts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to FunL&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="language.html"
+                        title="next chapter">The Language</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/introduction.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="language.html" title="The Language"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to FunL’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">FunL 0.17 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Edward A. Maxedon, Sr..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

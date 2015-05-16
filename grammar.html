@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Grammar &mdash; FunL 0.17 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.17',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="FunL 0.17 documentation" href="index.html" />
+    <link rel="prev" title="The Language" href="language.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="language.html" title="The Language"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">FunL 0.17 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="grammar">
+<h1>Grammar<a class="headerlink" href="#grammar" title="Permalink to this headline">¶</a></h1>
+<p>Here is the grammar used to parse FunL presented in EBNF.</p>
+<div class="section" id="syntactic-grammar">
+<h2>Syntactic Grammar<a class="headerlink" href="#syntactic-grammar" title="Permalink to this headline">¶</a></h2>
+<p>The syntactic grammar productions:</p>
+<div class="highlight-python"><div class="highlight"><pre>source ::= Newline | statements
+
+declaration ::= imports | natives | constants | variables | data | definitions
+
+imports ::=
+    &#39;import&#39; importModule
+  | &#39;import&#39; Indent importModule+ Dedent Newline
+
+importModule ::= name
+
+natives ::=
+    &#39;native&#39; name
+  | &#39;native&#39; Indent name+ Dedent Newline
+  | &#39;function&#39; name
+  | &#39;function&#39; Indent name+ Dedent Newline
+
+dottedName ::= ident (&#39;.&#39; ident)*
+
+qualifier ::= ident (&#39;=&gt;&#39; ident)?
+
+name ::=
+    dottedName (&#39;=&gt;&#39; ident)? Newline
+  | dottedName &#39;.&#39; &#39;{&#39; qualifier (&#39;,&#39; qualifier)* &#39;}&#39; Newline
+  | dottedName &#39;.&#39; &#39;*&#39; Newline
+
+identifiers ::= ident (&#39;,&#39; ident)*
+
+constants ::=
+    &#39;val&#39; constant
+  | &#39;val&#39; Indent constant+ Dedent Newline
+
+constant ::=
+    pattern &#39;=&#39; expressionOrBlock Newline
+
+variables ::=
+    &#39;var&#39; variable
+  | &#39;var&#39; Indent variable+ Dedent Newline
+
+variable ::=
+    ident (&#39;=&#39; expressionOrBlock)? Newline
+
+data ::=
+    &#39;data&#39; datatype
+  | &#39;data&#39; Indent datatype+ Dedent Newline
+
+datatype ::=
+    ident &#39;=&#39; constructor (&#39;|&#39; constructor)* Newline
+  | constructor Newline
+
+constructor ::=
+    ident &#39;(&#39; identifiers &#39;)&#39;
+  | ident
+
+definitions ::=
+    &#39;def&#39; definition
+  | &#39;def&#39; Indent definition+ Dedent Newline
+
+definition ::=
+    ident (&#39;(&#39; (pattern (&#39;,&#39; pattern)*)? &#39;)&#39;)? (optionallyGuardedPart | guardedParts)
+
+optionallyGuardedPart ::=
+    (&#39;|&#39; booleanExpression)? &#39;=&#39; expressionOrBlock Newline
+
+guardedPart ::=
+  &#39;|&#39; (&#39;otherwise&#39; | booleanExpression) &#39;=&#39; expressionOrBlock Newline
+
+guardedParts ::= Indent guardedPart+ Dedent Newline
+
+statements ::= statement+
+
+optionalNewline ::= Newline?
+
+expressionStatement ::= expression Newline
+
+statement ::=
+    expressionStatement
+  | declaration
+
+blockExpression ::=
+    Indent statements Dedent
+
+assignment ::= &#39;=&#39; | &#39;+=&#39; | &#39;-=&#39; | &#39;*=&#39; | &#39;/=&#39; | &#39;\=&#39; | &#39;^=&#39;
+
+expression ::=
+    lvalueExpression (&#39;,&#39; lvalueExpression)* assignment nonAssignmentExpression (&#39;,&#39; nonAssignmentExpression)*
+  | nonAssignmentExpression
+
+lambdaExpression ::=
+  (&#39;(&#39; pattern (&#39;,&#39; pattern)* &#39;)&#39; | pattern) (&#39;|&#39; booleanExpression)? &#39;-&gt;&#39; expression
+
+caseFunctionExpression ::=
+    Indent lambdaExpression (Newline lambdaExpression)* Dedent
+
+functionExpression ::=
+    lambdaExpression | caseFunctionExpression
+
+nonAssignmentExpression ::=
+    functionExpression | controlExpression
+
+elif ::=
+    optionalNewline &#39;elif&#39; booleanExpression (&#39;then&#39; expressionOrBlock | blockExpression)
+
+generator ::=
+    pattern &#39;&lt;-&#39; expression (&#39;if&#39; expression)?
+
+generators ::= generator (&#39;,&#39; generator)*
+
+expressionOrBlock ::= expression | blockExpression
+
+elif ::= optionalNewline &#39;elif&#39; booleanExpression (&#39;then&#39; expressionOrBlock | blockExpression)
+
+elsePart ::= (optionalNewline &#39;else&#39; expressionOrBlock)?
+
+controlExpression ::=
+    &#39;if&#39; booleanExpression (&#39;then&#39; expressionOrBlock | blockExpression) elif* elsePart
+  | &#39;for&#39; generators (&#39;do&#39; expressionOrBlock | blockExpression) elsePart
+  | &#39;for&#39; expressionOrBlock
+  | &#39;while&#39; expression (&#39;do&#39; expressionOrBlock | blockExpression) elsePart
+  | &#39;do&#39; expression optionalNewline &#39;while&#39; expression elsePart
+  | &#39;do&#39; expression optionalNewline &#39;until&#39; expression elsePart
+  | &#39;break&#39;
+  | &#39;continue&#39;
+  | &#39;return&#39; expression?
+  | &#39;case&#39; expression (&#39;of&#39; functionExpression | caseFunctionExpression)
+  | orExpression
+
+booleanExpression ::= orExpression
+
+orExpression ::=
+    orExpression (&#39;or&#39; | &#39;xor&#39;) andExpression
+  | andExpression
+
+andExpression ::=
+    andExpression (&#39;and&#39; | &#39;rotateright&#39; | &#39;rotateleft&#39; | &#39;shiftright&#39; | &#39;shiftleft&#39;) notExpression
+  | notExpression
+
+notExpression ::=
+    &#39;not&#39; notExpression
+  | comparisonExpression
+
+comparisonExpression ::=
+    iteratorExpression (&#39;==&#39; | &#39;!=&#39; | &#39;&lt;&#39; | &#39;&gt;&#39; | &#39;&lt;=&#39; | &#39;&gt;=&#39; | &#39;in&#39; | &#39;not&#39; &#39;in&#39;^ &#39;notin&#39; | &#39;|&#39; | &#39;/|&#39;) iteratorExpression
+  | iteratorExpression &#39;is&#39; ident
+  | iteratorExpression
+
+iteratorExpression ::=
+    (consExpression &#39;|&#39;) generators
+  | consExpression
+
+consExpression ::=
+    rangeExpression (&#39;:&#39; consExpression)
+  | rangeExpression (&#39;#&#39; consExpression)
+  | rangeExpression
+
+keyExpression ::= rangeExpression
+
+rangeExpression ::=
+    additiveExpression (&#39;..&#39; | &#39;until&#39;) additiveExpression (&#39;by&#39; additiveExpression)?
+  | (additiveExpression &#39;..&#39;) (&#39;by&#39; additiveExpression)?
+  | additiveExpression
+
+additiveExpression ::=
+    additiveExpression (&#39;+&#39; | &#39;-&#39;) multiplicativeExpression
+  | multiplicativeExpression
+
+multiplicativeExpression ::=
+    multiplicativeExpression (&#39;*&#39; | &#39;/&#39; | &#39;\&#39; | &#39;%&#39;) exponentialExpression
+  | multiplicativeExpression applyExpression
+  | exponentialExpression
+
+exponentialExpression ::=
+    exponentialExpression &#39;^&#39; negationExpression
+  | negationExpression
+
+negationExpression ::=
+    &#39;-&#39; incrementExpression
+  | incrementExpression
+
+incrementExpression ::=
+    (&#39;++&#39; | &#39;--&#39;) applyExpression
+  | applyExpression (&#39;++&#39; | &#39;--&#39;)
+  | applyExpression
+
+lvalueExpression ::= applyExpression
+
+applyExpression ::=
+    applyExpression (&#39;(&#39; (expression (&#39;,&#39; expression)*)? &#39;)&#39;)
+  | applyExpression (&#39;.&#39; | &#39;.&gt;&#39;) ident
+  | primaryExpression
+
+MapEntry ::=
+    keyExpression &#39;:&#39; expression
+
+comprehensionExpression ::=
+    consExpression &#39;|&#39; generators
+
+primaryExpression ::=
+    numericLit
+  | stringLit
+  | &#39;(&#39; infix &#39;)&#39;
+  | &#39;(&#39; expression infix &#39;)&#39;
+  | &#39;(&#39; infixNoMinus expression &#39;)&#39;
+  | &#39;(&#39; expression &#39;)&#39;
+  | ident
+  | (&#39;true&#39; | &#39;false&#39;)
+  | &#39;(&#39; &#39;)&#39;
+  | (&#39;(&#39; nonAssignmentExpression &#39;,&#39;) nonAssignmentExpression (&#39;,&#39; nonAssignmentExpression)* &#39;)&#39;
+  | &#39;[&#39; comprehensionExpression &#39;]&#39;
+  | &#39;[&#39; (nonAssignmentExpression (&#39;,&#39; nonAssignmentExpression)*)? &#39;]&#39;
+  | &#39;null&#39;
+  | &#39;{&#39; (keyExpression (&#39;,&#39; keyExpression)*)? &#39;}&#39;
+  | &#39;{&#39; MapEntry (&#39;,&#39; MapEntry)* &#39;}&#39;
+  | &#39;$&#39; ident
+  | &#39;?&#39; ident
+
+infixNoMinus ::= &#39;+&#39; | &#39;*&#39; | &#39;/&#39; | &#39;\&#39; | &#39;^&#39; | &#39;%&#39; | &#39;==&#39; | &#39;!=&#39; | &#39;&lt;&#39; | &#39;&gt;&#39; | &#39;&lt;=&#39; | &#39;&gt;=&#39; | &#39;:&#39; | &#39;#&#39; | &#39;and&#39; | &#39;or&#39; | &#39;xor&#39;
+
+infix ::= infixNoMinus | &#39;-&#39;
+
+pattern ::=
+    ident &#39;@&#39; typePattern
+  | typePattern
+
+typePattern ::=
+    consPattern &#39;::&#39; ident
+  | consPattern
+
+consPattern ::=
+    primaryPattern &#39;:&#39; consPattern
+  | primaryPattern
+
+primaryPattern ::=
+    numericLit
+  | stringLit
+  | &#39;true&#39; | &#39;false&#39;
+  | &#39;(&#39; &#39;)&#39;
+  | &#39;null&#39;
+  | ident &#39;(&#39; pattern (&#39;,&#39; pattern)* &#39;)&#39;
+  | ident
+  | &#39;(&#39; pattern &#39;,&#39; pattern (&#39;,&#39; pattern)* &#39;)&#39;
+  | &#39;[&#39; (pattern (&#39;,&#39; pattern)*)? &#39;]&#39;
+  | &#39;{&#39; &#39;}&#39;
+  | &#39;(&#39; pattern &#39;|&#39; pattern (&#39;|&#39; pattern)* &#39;)&#39;
+  | &#39;(&#39; pattern &#39;)&#39;
+</pre></div>
+</div>
+</div>
+<div class="section" id="lexical-grammar">
+<h2>Lexical Grammar<a class="headerlink" href="#lexical-grammar" title="Permalink to this headline">¶</a></h2>
+<p>The reserved words in the language are: <code class="docutils literal"><span class="pre">and</span></code>, <code class="docutils literal"><span class="pre">break</span></code>, <code class="docutils literal"><span class="pre">by</span></code>, <code class="docutils literal"><span class="pre">case</span></code>, <code class="docutils literal"><span class="pre">class</span></code>, <code class="docutils literal"><span class="pre">continue</span></code>, <code class="docutils literal"><span class="pre">data</span></code>, <code class="docutils literal"><span class="pre">def</span></code>, <code class="docutils literal"><span class="pre">do</span></code>, <code class="docutils literal"><span class="pre">elif</span></code>, <code class="docutils literal"><span class="pre">else</span></code>, <code class="docutils literal"><span class="pre">false</span></code>, <code class="docutils literal"><span class="pre">for</span></code>, <code class="docutils literal"><span class="pre">forever</span></code>, <code class="docutils literal"><span class="pre">function</span></code>, <code class="docutils literal"><span class="pre">if</span></code>, <code class="docutils literal"><span class="pre">import</span></code>, <code class="docutils literal"><span class="pre">in</span></code>, <code class="docutils literal"><span class="pre">is</span></code>, <code class="docutils literal"><span class="pre">mod</span></code>, <code class="docutils literal"><span class="pre">native</span></code>, <code class="docutils literal"><span class="pre">not</span></code>, <code class="docutils literal"><span class="pre">null</span></code>, <code class="docutils literal"><span class="pre">of</span></code>, <code class="docutils literal"><span class="pre">or</span></code>, <code class="docutils literal"><span class="pre">otherwise</span></code>, <code class="docutils literal"><span class="pre">repeat</span></code>, <code class="docutils literal"><span class="pre">return</span></code>, <code class="docutils literal"><span class="pre">then</span></code>, <code class="docutils literal"><span class="pre">true</span></code>, <code class="docutils literal"><span class="pre">until</span></code>, <code class="docutils literal"><span class="pre">val</span></code>, <code class="docutils literal"><span class="pre">var</span></code>, <code class="docutils literal"><span class="pre">while</span></code>, <code class="docutils literal"><span class="pre">xor</span></code>, <code class="docutils literal"><span class="pre">yield</span></code>.</p>
+<p>The special delimiters are: <code class="docutils literal"><span class="pre">+</span></code>, <code class="docutils literal"><span class="pre">*</span></code>, <code class="docutils literal"><span class="pre">-</span></code>, <code class="docutils literal"><span class="pre">/</span></code>, <code class="docutils literal"><span class="pre">^</span></code>, <code class="docutils literal"><span class="pre">(</span></code>, <code class="docutils literal"><span class="pre">)</span></code>, <code class="docutils literal"><span class="pre">[</span></code>, <code class="docutils literal"><span class="pre">]</span></code>, <code class="docutils literal"><span class="pre">|</span></code>, <code class="docutils literal"><span class="pre">{</span></code>, <code class="docutils literal"><span class="pre">}</span></code>, <code class="docutils literal"><span class="pre">,</span></code>, <code class="docutils literal"><span class="pre">=</span></code>, <code class="docutils literal"><span class="pre">==</span></code>, <code class="docutils literal"><span class="pre">!=</span></code>, <code class="docutils literal"><span class="pre">&lt;</span></code>, <code class="docutils literal"><span class="pre">$</span></code>, <code class="docutils literal"><span class="pre">&gt;</span></code>, <code class="docutils literal"><span class="pre">&lt;-</span></code>, <code class="docutils literal"><span class="pre">&lt;=</span></code>, <code class="docutils literal"><span class="pre">&gt;=</span></code>, <code class="docutils literal"><span class="pre">--</span></code>, <code class="docutils literal"><span class="pre">++</span></code>, <code class="docutils literal"><span class="pre">.</span></code>, <code class="docutils literal"><span class="pre">..</span></code>, <code class="docutils literal"><span class="pre">&lt;-</span></code>, <code class="docutils literal"><span class="pre">-&gt;</span></code>, <code class="docutils literal"><span class="pre">=&gt;</span></code>, <code class="docutils literal"><span class="pre">+=</span></code>, <code class="docutils literal"><span class="pre">-=</span></code>, <code class="docutils literal"><span class="pre">*=</span></code>, <code class="docutils literal"><span class="pre">/=</span></code>, <code class="docutils literal"><span class="pre">^=</span></code>, <code class="docutils literal"><span class="pre">:</span></code>, <code class="docutils literal"><span class="pre">\\</span></code>, <code class="docutils literal"><span class="pre">::</span></code>, <code class="docutils literal"><span class="pre">&#64;</span></code>, <code class="docutils literal"><span class="pre">?</span></code>.</p>
+<p>The lexical grammar productions:</p>
+<div class="highlight-python"><div class="highlight"><pre>decimalParser =
+        rep1(digit) ~ optFraction ~ optExponent |
+        fraction ~ optExponent
+
+sign = &#39;+&#39; | &#39;-&#39;
+
+optSign = opt( sign )
+
+fraction = &#39;.&#39; ~ rep1(digit)
+
+optFraction = opt( fraction )
+
+exponent = (&#39;e&#39; | &#39;E&#39;) ~ optSign ~ rep1(digit)
+
+optExponent = opt(exponent)
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Grammar</a><ul>
+<li><a class="reference internal" href="#syntactic-grammar">Syntactic Grammar</a></li>
+<li><a class="reference internal" href="#lexical-grammar">Lexical Grammar</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="language.html"
+                        title="previous chapter">The Language</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/grammar.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="language.html" title="The Language"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">FunL 0.17 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Edward A. Maxedon, Sr..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
